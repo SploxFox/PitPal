@@ -28,19 +28,30 @@ import static pit.splox.pitpal.PitPal.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.lwjgl.input.Keyboard;
 
 public class Hud extends Module {
-    private static CompletableFuture<List<PitEvent>> pitEvents = PitSploxApi.fetchEvents();
+    private static List<PitEvent> pitEvents = new ArrayList<PitEvent>();
     private List<Widget> widgets = new ArrayList<Widget>();
     private boolean isVisible = true;
     private ScaledResolution res;
     public Hud() {
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                pitEvents = PitSploxApi.fetchEvents().get();
+            } catch (Exception e) {
+                logger.info("Error fetching events");
+                e.printStackTrace();
+            }
+        }, 0, 60, TimeUnit.SECONDS);
+        
 
         widgets.add(new TextWidget("Mystics equipped", 0xffaaaa){
             public boolean isVisible() {
-                return PitPal.getInstance().state.inventory.hasPerishableMystics();
+                return state.inventory.hasPerishableMystics();
             }
         } );
     }
@@ -99,24 +110,29 @@ public class Hud extends Module {
     }
 
     public void drawEvents() {
-        List<PitEvent> pitEventsList = pitEvents.getNow(new ArrayList<PitEvent>());
-
         int i = 0;
         double scale = 0.8;
         int startY = 31;
-        for (PitEvent event : pitEventsList) {
-            int x = 11;
-            int y = startY + (i * 20);
-
+        for (PitEvent event : pitEvents) {
             if (i >= 7) {
                 break;
-            } else if (event.start < System.currentTimeMillis()) {
+            }
+            
+            int x = 11;
+            int y = startY + (i * 20);
+            
+            boolean isMajor = event.type.equals("major");
+            long start = isMajor ? (3 * 60 * 1000) + event.start : event.start;
+            //long end = start + (4 * 60 * 1000);
+
+            if (start < System.currentTimeMillis()) {
                 continue;
             }
-            mc.fontRendererObj.drawString((event.type.equals("major") ? "\u00a7l" : "") + event.name, x, y, (event.type.equals("major") ? 0xbb62ff : 0xffffff), true);
+
+            mc.fontRendererObj.drawString((isMajor ? "\u00a7l" : "") + event.name, x, y, (isMajor ? 0xbb62ff : 0xffffff), true);
             GlStateManager.pushMatrix();
             GlStateManager.scale(scale, scale, 1);
-            mc.fontRendererObj.drawString(formatDurationUntil(event.start), (int) (x * (1/scale)), (int) ((y + 10) * (1/scale)), 0xaaaaaa, true);
+            mc.fontRendererObj.drawString(formatDurationUntil(start), (int) (x * (1/scale)), (int) ((y + 10) * (1/scale)), 0xaaaaaa, true);
             GlStateManager.popMatrix();
             i++;
         }

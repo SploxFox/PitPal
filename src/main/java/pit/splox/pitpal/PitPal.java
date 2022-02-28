@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -52,6 +54,7 @@ public class PitPal {
      */
     public static final Logger logger = LogManager.getLogger(PitPal.MODID);
     public static final Minecraft mc = Minecraft.getMinecraft();
+    public static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     public static FontRenderer getFontRenderer() {
         return mc.fontRendererObj;
     }
