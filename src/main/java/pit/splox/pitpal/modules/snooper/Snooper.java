@@ -34,6 +34,7 @@ import static pit.splox.pitpal.PitPal.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.lwjgl.input.Keyboard;
@@ -53,6 +54,8 @@ public class Snooper extends Module {
                 sendMessages();
             }
         });
+
+        scheduler.scheduleAtFixedRate(() -> sendMessages(), 0, 60, TimeUnit.SECONDS);
     }
 
     /**
@@ -146,17 +149,17 @@ public class Snooper extends Module {
     private boolean isEnchanting = false;
     private PitItemStack beforeEnchanting = null;
     private PitItemStack afterEnchanting = null;
-    private void clearEnchanting(boolean isStillEnchantingThough) {
-        if (isEnchanting && !isStillEnchantingThough) {
-            logger.info("End enchanting");
+    private void clearEnchanting() {
+        if (isEnchanting) {
+            logger.info("Cleared enchanting");
         }
-        
-        isEnchanting = isStillEnchantingThough;
+
         beforeEnchanting = null;
         afterEnchanting = null;
     }
-    private void clearEnchanting() {
-        clearEnchanting(false);
+
+    private void closeEnchantingGui() {
+        isEnchanting = false;
     }
 
     @SubscribeEvent
@@ -184,12 +187,12 @@ public class Snooper extends Module {
                     if (wellItem.hasPitAttributes() && wellItem.hasNonce()) {
                         if (beforeEnchanting == null) {
                             beforeEnchanting = wellItem;
-                            logger.info("Before enchanting set.");
+                            logger.info("Before enchanting set to " + wellItem.getNonce());
                         } else if (afterEnchanting == null
                                 && stack != beforeEnchanting.itemStack
                                 && !stack.getTagCompound().toString().equals(beforeEnchanting.itemStack.getTagCompound().toString())) {
                             afterEnchanting = wellItem;
-                            logger.info("After enchanting set.");
+                            logger.info("After enchanting set to " + wellItem.getNonce());
 
                             // Ensure it's actually the same item
                             if (afterEnchanting.getNonce() == beforeEnchanting.getNonce()) {
@@ -199,7 +202,7 @@ public class Snooper extends Module {
                                 logger.info("Different nonce, ie different item: Nonces: " + beforeEnchanting.getNonce() + " and " + afterEnchanting.getNonce());
                             }
 
-                            clearEnchanting(true);
+                            clearEnchanting();
                         }
                     } else {
                         //logger.debug("Well item not pit item");
@@ -215,7 +218,7 @@ public class Snooper extends Module {
     public void handleGuiScreenOpen(GuiOpenEvent event) {
         if (event.gui == null) {
             // If it's null, we're actually closing a gui.
-            clearEnchanting();
+            closeEnchantingGui();
         }
     }
 
