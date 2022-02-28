@@ -23,7 +23,7 @@ public class PitItemTooltips extends Module {
                 && pitItemStack.getUpgradeTier() < 3) {
             event.toolTip.add("");
             event.toolTip.add("Nonce: " + ChatFormatting.GOLD + pitItemStack.getNonce());
-            if (!pitItemStack.isPants()) {
+            if (!pitItemStack.isPants() && pitItemStack.isMystic()) {
                 event.toolTip.add("Requires " + getPantsColorText(pitItemStack.getNonce() % 5) + " pants" + ChatFormatting.GRAY + " to tier III");
             }
         }
@@ -37,7 +37,9 @@ public class PitItemTooltips extends Module {
         } else if (color == 2) {
             return ChatFormatting.BLUE + "blue";
         } else if (color == 3) {
-            return ChatFormatting.GREEN + "orange";
+            return ChatFormatting.GOLD + "orange";
+        } else if (color == 4) {
+            return ChatFormatting.GREEN + "green";
         } else {
             return "uh oh";
         }
