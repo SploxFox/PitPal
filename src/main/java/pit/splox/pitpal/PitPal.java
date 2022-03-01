@@ -164,4 +164,20 @@ public class PitPal {
     public static Configuration getConfig() {
         return getInstance().config;
     }
+
+    public static String stripFormatting(String string) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+            if (c == 0x00A7) {
+                // If it's a section sign, skip it.
+                i++;
+            } else {
+                sb.append(c);
+            }
+        }
+
+        return sb.toString();
+    }
 }

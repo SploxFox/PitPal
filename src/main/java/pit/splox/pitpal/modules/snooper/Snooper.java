@@ -159,6 +159,9 @@ public class Snooper extends Module {
     }
 
     private void closeEnchantingGui() {
+        if (isEnchanting) {
+            logger.info("Closed enchant gui");
+        }
         isEnchanting = false;
     }
 
@@ -167,16 +170,13 @@ public class Snooper extends Module {
         if (event.gui instanceof GuiContainer) {
             GuiContainer gui = (GuiContainer) event.gui;
 
-            if (!isEnchanting) {
-                // Check to see if there is an enchanting table in slot 24,
-                // ie basically checking if the mystic well gui is open.
-                if (gui.inventorySlots.getSlot(24) != null 
-                        && gui.inventorySlots.getSlot(24).getStack() != null
-                        && Item.getIdFromItem(gui.inventorySlots.getSlot(24).getStack().getItem()) == 116
-                        && gui.inventorySlots.getSlot(24).getStack().getDisplayName().contains("Mystic Well")) {
-                    isEnchanting = true;
-                    logger.info("Started enchanting");
+            // Check to see if there is an enchanting table in slot 24,
+            // ie basically checking if the mystic well gui is open.
+            if (slotIsMysticWell(gui, 24) || slotIsMysticWell(gui, 25)) {
+                if (!isEnchanting) {
+                    logger.info("Opened enchant gui");
                 }
+                isEnchanting = true;
             }
 
             if (isEnchanting && (beforeEnchanting == null || afterEnchanting == null)) {
@@ -189,7 +189,7 @@ public class Snooper extends Module {
                             beforeEnchanting = wellItem;
                             logger.info("Before enchanting set to " + wellItem.getNonce());
                         } else if (afterEnchanting == null
-                                && stack != beforeEnchanting.itemStack
+                                //&& stack != beforeEnchanting.itemStack
                                 && !stack.getTagCompound().toString().equals(beforeEnchanting.itemStack.getTagCompound().toString())) {
                             afterEnchanting = wellItem;
                             logger.info("After enchanting set to " + wellItem.getNonce());
@@ -212,6 +212,13 @@ public class Snooper extends Module {
                 }
             }
         }
+    }
+
+    private boolean slotIsMysticWell(GuiContainer gui, int slot) {
+        return gui.inventorySlots.getSlot(slot) != null 
+                    && gui.inventorySlots.getSlot(slot).getStack() != null
+                    && Item.getIdFromItem(gui.inventorySlots.getSlot(slot).getStack().getItem()) == 116
+                    && gui.inventorySlots.getSlot(slot).getStack().getDisplayName().contains("Mystic Well");
     }
 
     @SubscribeEvent
