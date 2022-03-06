@@ -38,6 +38,9 @@ public class Hud extends Module {
     private List<Widget> widgets = new ArrayList<Widget>();
     private boolean isVisible = true;
     private ScaledResolution res;
+    private int topLeftXPadding = getConfig().get("topLeftXPadding").getInt(10);
+    private int topLeftYPadding = getConfig().get("topLeftYPadding").getInt(10);
+
     public Hud() {
         scheduler.scheduleAtFixedRate(() -> {
             try {
@@ -76,7 +79,7 @@ public class Hud extends Module {
             // Day/night stuff
             DayOrNight dayOrNight = DayNight.getDayOrNight();
             String text = dayOrNight.name + " " + formatDurationUntil(DayNight.getEndTime());
-            drawStatusBar(10, 10, text, DayNight.getProgress(), dayOrNight == DayOrNight.DAY ? 0xff9c5209 : 0xff3022ab);
+            drawStatusBar(topLeftXPadding, topLeftYPadding, text, DayNight.getProgress(), dayOrNight == DayOrNight.DAY ? 0xff9c5209 : 0xff3022ab);
 
             // Other stuff
             drawEvents();
@@ -112,13 +115,13 @@ public class Hud extends Module {
     public void drawEvents() {
         int i = 0;
         double scale = 0.8;
-        int startY = 31;
+        int startY = topLeftYPadding + 21;
         for (PitEvent event : pitEvents) {
             if (i >= 7) {
                 break;
             }
             
-            int x = 11;
+            int x = topLeftXPadding + 1;
             int y = startY + (i * 20);
             
             boolean isMajor = event.type.equals("major");
