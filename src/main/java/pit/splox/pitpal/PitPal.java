@@ -131,6 +131,10 @@ public class PitPal {
         config.load();
     }
 
+    public static Configuration getGlobalConfig() {
+        return getInstance().config;
+    }
+
     public static void handleConfigChanged() {
         getInstance()._handleConfigChanged();
 
