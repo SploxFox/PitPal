@@ -53,7 +53,8 @@ jar {
 	classifier = 'slim'
     manifest {
 		attributes (
-			'FMLCorePlugin': 'some.made.up.shit'
+			'FMLCorePlugin': 'dude.i.dont.understand.why.this.works',
+			'FMLCorePluginContainsFMLMod': true
 		)
 	}
 }
