@@ -147,14 +147,13 @@ public class Snooper extends Module {
     private PitItemStack beforeEnchanting = null;
     private PitItemStack afterEnchanting = null;
     private void clearEnchanting(boolean isStillEnchantingThough) {
+        if (isEnchanting && !isStillEnchantingThough) {
+            logger.info("End enchanting");
+        }
+        
         isEnchanting = isStillEnchantingThough;
         beforeEnchanting = null;
         afterEnchanting = null;
-
-        if (!isStillEnchantingThough) {
-            logger.info("End enchanting");
-        }
-    
     }
     private void clearEnchanting() {
         clearEnchanting(false);
@@ -194,19 +193,19 @@ public class Snooper extends Module {
 
                             // Ensure it's actually the same item
                             if (afterEnchanting.getNonce() == beforeEnchanting.getNonce()) {
-                                logger.info("Same nonce -- done!");
+                                logger.info("Same nonce: " + beforeEnchanting.getNonce() + " -- done!");
                                 addMessage(new MysticEnchant(beforeEnchanting.itemStack.getTagCompound().toString(), afterEnchanting.itemStack.getTagCompound().toString(), beforeEnchanting.getItemId()));
                             } else {
-                                logger.info("Different nonce, ie different item");
+                                logger.info("Different nonce, ie different item: Nonces: " + beforeEnchanting.getNonce() + " and " + afterEnchanting.getNonce());
                             }
 
                             clearEnchanting(true);
                         }
                     } else {
-                        logger.debug("Well item not pit item");
+                        //logger.debug("Well item not pit item");
                     }
                 } else {
-                    logger.debug("Null stack");
+                    //logger.debug("Null stack");
                 }
             }
         }
