@@ -45,8 +45,17 @@ minecraft {
 }
 
 dependencies {
-    implementation 'org.reflections:reflections:0.10.2'
+    compile 'org.reflections:reflections:0.10.2'
     shadow 'org.reflections:reflections:0.10.2'
+}
+
+jar {
+	classifier = 'slim'
+    manifest {
+		attributes (
+			'FMLCorePlugin': 'some.made.up.shit'
+		)
+	}
 }
 
 shadowJar {
@@ -56,6 +65,10 @@ shadowJar {
 
 reobf {
 	shadowJar { mappingType = 'SEARGE' }
+}
+
+tasks.reobfJar.doLast {
+	file('build/libs/'+archivesBaseName+'-'+version+'-slim.jar').delete()
 }
 
 tasks.build.dependsOn reobfShadowJar
