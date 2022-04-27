@@ -1,3 +1,5 @@
+
+// For those who want the bleeding edge
 buildscript {
     repositories {
         jcenter()
@@ -14,7 +16,13 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "1.0"
+/*
+// for people who want stable - not yet functional for MC 1.8.8 - we require the forgegradle 2.1 snapshot
+plugins {
+    id "net.minecraftforge.gradle.forge" version "2.0.2"
+}
+*/
+version = "0.1.0"
 group = "pit.splox.pitpal"
 archivesBaseName = "pitpal"
 
@@ -32,28 +40,13 @@ minecraft {
     mappings = "stable_20"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
-    replaceIn 'src/main/java/com/unascribed/ears/Ears.java'
+    replaceIn 'src/main/java/pit/splox/pitpal/PitPal.java'
 	replace '@VERSION@', project.version
-    
-	coreMod = 'com.unascribed.ears.common.agent.NewForgeCoremod'
-}
-
-jar {
-	manifest {
-		attributes (
-			'FMLCorePlugin': 'com.unascribed.ears.common.agent.NewForgeCoremod',
-			'FMLCorePluginContainsFMLMod': true
-		)
-	}
 }
 
 dependencies {
-    compile 'org.reflections:reflections:0.10.2'
+    implementation 'org.reflections:reflections:0.10.2'
     shadow 'org.reflections:reflections:0.10.2'
-}
-
-jar {
-	classifier = 'slim'
 }
 
 shadowJar {
@@ -63,10 +56,6 @@ shadowJar {
 
 reobf {
 	shadowJar { mappingType = 'SEARGE' }
-}
-
-tasks.reobfJar.doLast {
-	file('build/libs/'+archivesBaseName+'-'+version+'-slim.jar').delete()
 }
 
 tasks.build.dependsOn reobfShadowJar
