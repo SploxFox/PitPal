@@ -100,7 +100,7 @@ public class PitSploxApi {
             URL url = new URL(apiUrl + path);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
-            connection.setFixedLengthStreamingMode(data.length());
+            connection.setFixedLengthStreamingMode(data.getBytes(StandardCharsets.UTF_8).length);
             if (isAuthenticated()) {
                 connection.setRequestProperty("Authorization", "Bearer " + token);
             }
