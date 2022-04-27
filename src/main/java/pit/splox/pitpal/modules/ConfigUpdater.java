@@ -14,7 +14,7 @@ public class ConfigUpdater extends Module {
     @SubscribeEvent
     public void handleTick(TickEvent event) {
         if (event.phase == Phase.END && event.side == Side.CLIENT) {
-            if (getConfig().hasChanged()) {
+            if (getGlobalConfig().hasChanged()) {
                 handleConfigChanged();
             }
         }
