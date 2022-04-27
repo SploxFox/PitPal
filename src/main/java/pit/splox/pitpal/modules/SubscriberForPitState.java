@@ -3,6 +3,7 @@ package pit.splox.pitpal.modules;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
+import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.item.ItemEvent;
@@ -72,15 +73,17 @@ public class SubscriberForPitState extends Module {
 
                     if (objective != null && objective.getDisplayName() != null && !scores.isEmpty()) {
                         List<String> scoreboardLines = scores.stream()
-                            .skip(Math.max(0, 15 - scores.size()))
-                            .map(score -> score.getPlayerName())
+                            .map(score -> stripFormatting(sb.getPlayersTeam(score.getPlayerName()).formatString("")))
                             .collect(Collectors.toList());
+
+                        Collections.reverse(scoreboardLines);
 
                         if (scoreboardLines.size() > 0) {
                             state.update(s -> {
                                 s.scoreboard = scoreboardLines;
                                 s.connectedToPit = objective.getDisplayName().contains("THE HYPIXEL PIT");
-                                String[] firstLineParts = scoreboardLines.get(0).split(" ");
+                                String[] firstLineParts = scoreboardLines.get(0).split("  ");
+                                
                                 if (firstLineParts.length > 1) {
                                     s.pitServerInstance = firstLineParts[1];
                                 }
