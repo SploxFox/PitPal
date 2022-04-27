@@ -53,11 +53,23 @@ public class PitItemStack {
         return Item.getIdFromItem(itemStack.getItem());
     }
 
+    public boolean isFresh() {
+        return hasNonce() && getUpgradeTier() == 0;
+    }
+
     public boolean isPants() {
         return getItemId() == 300;
     }
 
-    public boolean isFresh() {
-        return hasNonce() && getUpgradeTier() == 0;
+    public boolean isBow() {
+        return getItemId() == 261;
+    }
+
+    public boolean isSword() {
+        return getItemId() == 283;
+    }
+
+    public boolean isMystic() {
+        return isPants() || isBow() || isSword();
     }
 }
