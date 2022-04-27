@@ -38,8 +38,7 @@ public class Hud extends Module {
     private List<Widget> widgets = new ArrayList<Widget>();
     private boolean isVisible = true;
     private ScaledResolution res;
-    private int topLeftXPadding = getConfig().get("topLeftXPadding").getInt(10);
-    private int topLeftYPadding = getConfig().get("topLeftYPadding").getInt(10);
+    
 
     public Hud() {
         scheduler.scheduleAtFixedRate(() -> {
@@ -49,7 +48,7 @@ public class Hud extends Module {
                 logger.info("Error fetching events");
                 e.printStackTrace();
             }
-        }, 0, 60, TimeUnit.SECONDS);
+        }, 0, 4, TimeUnit.HOURS);
         
 
         widgets.add(new TextWidget("Mystics equipped", 0xffaaaa){
@@ -57,6 +56,8 @@ public class Hud extends Module {
                 return state.inventory.hasPerishableMystics();
             }
         } );
+
+        getGlobalConfig().save();
     }
 
     @SubscribeEvent
@@ -79,7 +80,7 @@ public class Hud extends Module {
             // Day/night stuff
             DayOrNight dayOrNight = DayNight.getDayOrNight();
             String text = dayOrNight.name + " " + formatDurationUntil(DayNight.getEndTime());
-            drawStatusBar(topLeftXPadding, topLeftYPadding, text, DayNight.getProgress(), dayOrNight == DayOrNight.DAY ? 0xff9c5209 : 0xff3022ab);
+            drawStatusBar(getTopLeftXPadding(), getTopLeftYPadding(), text, DayNight.getProgress(), dayOrNight == DayOrNight.DAY ? 0xff9c5209 : 0xff3022ab);
 
             // Other stuff
             drawEvents();
@@ -115,13 +116,13 @@ public class Hud extends Module {
     public void drawEvents() {
         int i = 0;
         double scale = 0.8;
-        int startY = topLeftYPadding + 21;
+        int startY = getTopLeftYPadding() + 21;
         for (PitEvent event : pitEvents) {
             if (i >= 7) {
                 break;
             }
             
-            int x = topLeftXPadding + 1;
+            int x = getTopLeftXPadding() + 1;
             int y = startY + (i * 20);
             
             boolean isMajor = event.type.equals("major");
@@ -143,5 +144,13 @@ public class Hud extends Module {
 
     public void drawCountdown(int x, int y, String text, long endTime, long duration, int color) {
 
+    }
+
+    private int getTopLeftXPadding() {
+        return getConfigInt("topLeftXPadding", 10);
+    }
+
+    private int getTopLeftYPadding() {
+        return getConfigInt("topLeftYPadding", 10);
     }
 }

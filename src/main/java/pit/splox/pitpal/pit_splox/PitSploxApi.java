@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +21,7 @@ import javax.management.RuntimeErrorException;
 
 import com.google.common.collect.Multiset.Entry;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -126,15 +128,24 @@ public class PitSploxApi {
         }
     }
 
+    private static URL getOutboundURL(String path) throws MalformedURLException {
+        if (path.startsWith("https://")) {
+            return new URL(path);
+        } else {
+            return new URL(apiUrl + path);
+        }
+    }
+
     private static <TResponse> String fetchReaderSync(String path) {
-        logger.info("Made request to /" + path);
+        
+        logger.info("Made request to " + path);
         try {
             if (path.charAt(0) == '/') {
                 throw new RuntimeException("Path shouldn't start with /");
             }
 
             // Copied from the internet
-            URL url = new URL(apiUrl + path);
+            URL url = getOutboundURL(path);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             if (isAuthenticated()) {
@@ -182,7 +193,7 @@ public class PitSploxApi {
     }
 
     public static List<PitEvent> fetchEventsSync() {
-        JsonElement tree = fetchJsonTreeSync("events");
+        /*JsonElement tree = fetchJsonTreeSync("events");
         Set<Map.Entry<String,JsonElement>> eventsSet = tree.getAsJsonObject().entrySet();
         List<PitEvent> events = eventsSet.stream()
             .map((Map.Entry<String, JsonElement> entry) -> entry.getValue().getAsJsonObject())
@@ -190,6 +201,16 @@ public class PitSploxApi {
             .collect(Collectors.toList());
         
         events.sort((PitEvent a, PitEvent b) -> (int)(a.start - b.start));
+        return events;*/
+
+        JsonArray jsonList = fetchJsonTreeSync("https://events.mcpqndq.dev/").getAsJsonArray();
+        List<PitEvent> events = new ArrayList<>();
+
+        for (JsonElement el : jsonList) {
+            JsonObject obj = el.getAsJsonObject();
+            events.add(new PitEvent(obj.get("timestamp").getAsLong(), obj.get("event").getAsString(), obj.get("type").getAsString()));
+        }
+
         return events;
     }
 

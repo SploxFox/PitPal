@@ -30,10 +30,43 @@ public class SubscriberForPitState extends Module {
     @SubscribeEvent
     public void handleChat(ClientChatReceivedEvent event) {
         String msg = event.message.getUnformattedText();
+
+        // SEWERS
         if (msg.startsWith("SEWERS! A new treasure")) {
             state.update(s -> s.treasureSpawned = true);
         } else if (msg.startsWith("SEWERS!")) {
             state.update(s -> s.treasureSpawned = false);
+        }
+
+        // ITEM PURCHASES
+        if (msg.startsWith("PURCHASE!")) {
+            String item = msg.substring(10);
+
+            state.update(s -> s.goldSpentOnItemsThisLife += getPrice(item));
+        }
+    }
+
+    private double getPrice(String item) {
+        if (item.equals("Obsidian")) {
+            return 40;
+        } else if (item.equals("Diamond Sword")) {
+            return 150;
+        } else if (item.equals("Golden Pickaxe")) {
+            return 500;
+        } else if (item.equals("Diamond Chestplate")) {
+            return 500;
+        } else if (item.equals("Diamond Boots")) {
+            return 300;
+        } else if (item.equals("Iron Pack")) {
+            // Ignore this item because I don't know how to count it.
+            return 0;
+        } else if (item.equals("Combat Spade")) {
+            return 750;
+        } else if (item.equals("First-Aid Egg")) {
+            return 200;
+        } else {
+            logger.warn("Unknown item " + item);
+            return 0;
         }
     }
 
