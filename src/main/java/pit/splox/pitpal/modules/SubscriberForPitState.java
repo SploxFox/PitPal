@@ -66,7 +66,7 @@ public class SubscriberForPitState extends Module {
                 }
 
                 // Parse scoreboard
-                {
+                try {
                     Scoreboard sb = mc.thePlayer.getWorldScoreboard();
                     ScoreObjective objective = sb.getObjectiveInDisplaySlot(1);
                     Collection<Score> scores = sb.getSortedScores(objective);
@@ -95,6 +95,8 @@ public class SubscriberForPitState extends Module {
                             s.connectedToPit = false;
                         });
                     }
+                } catch (Exception e) {
+                    // Do nothing
                 }
             }
         }
